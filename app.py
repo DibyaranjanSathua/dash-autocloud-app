@@ -413,25 +413,25 @@ class AppLayout:
             return potential_deal_data
         filtered_year_ids = []
         filtered_make_ids = []
-        for data in potential_deal_data:
-            # Year filter
-            if selected_year:
-                for year in selected_year:
-                    if year in data["make_model_year"]:
-                        filtered_year_ids.append(data["PotentialDealID"])
-                        break
-            else:
-                filtered_year_ids.append(data["PotentialDealID"])
-
-            # Make filter
-            if selected_make:
-                for make in selected_make:
-                    if make in data["make_model_year"].lower():
-                        filtered_make_ids.append(data["PotentialDealID"])
-            else:
-                filtered_make_ids.append(data["PotentialDealID"])
-
         if selected_year or selected_make:
+            for data in potential_deal_data:
+                # Year filter
+                if selected_year:
+                    for year in selected_year:
+                        if year in data["make_model_year"]:
+                            filtered_year_ids.append(data["PotentialDealID"])
+                            break
+                else:
+                    filtered_year_ids.append(data["PotentialDealID"])
+
+                # Make filter
+                if selected_make:
+                    for make in selected_make:
+                        if make in data["make_model_year"].lower():
+                            filtered_make_ids.append(data["PotentialDealID"])
+                else:
+                    filtered_make_ids.append(data["PotentialDealID"])
+
             filtered_ids = set(filtered_year_ids).intersection(set(filtered_make_ids))
             filtered_data = [
                 data for data in potential_deal_data if data["PotentialDealID"] in filtered_ids
