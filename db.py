@@ -26,6 +26,7 @@ class DBApi:
         self._engine = create_engine(DBApi.DB_URL)
         self._conn = self._engine.connect()
         self._potential_records = None
+        self._filters = None
 
     def __del__(self):
         self._conn.close()
@@ -93,11 +94,37 @@ class DBApi:
         self._conn.execute(query)
         transcation.commit()
 
+    def save_filter(self, name, year, make, model, min_odometer, max_odometer, min_price, max_price,
+                    min_offer_price, max_offer_price):
+        """ Save the filter for future use """
+        query = f"""
+        INSERT INTO Filters(name, year, make, model, min_odometer, max_odometer, min_price, 
+        max_price, min_offer_price, max_offer_price)
+        VALUES ('{name}', '{year}', '{make}', '{model}', '{min_odometer}', '{max_odometer}', 
+        '{min_price}', '{max_price}', '{min_offer_price}', '{max_offer_price}')
+        """
+        transcation = self._conn.begin()
+        self._conn.execute(query)
+        transcation.commit()
+
+    def get_all_filters(self):
+        """ Get all the rows for filters """
+        query = "SELECT * FROM Filters"
+        self._filters = [dict(row) for row in self._conn.execute(query).fetchall()]
+
     @property
     def potential_records(self):
         if self._potential_records is None:
+            print("Getting data from db")
             self.get_all_potential_records()
+        print("Returning data from cache")
         return self._potential_records
+
+    @property
+    def filters(self):
+        if self._filters is None:
+            self.get_all_filters()
+        return self._filters
 
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+.dash-spreadsheet-container table {
+    --accent: #00a355 !important;
+    --selected-background: #00a35444 !important;
+    --selected-color: #3C3C3C !important;
+}
