@@ -399,6 +399,10 @@ class AppLayout:
 
                     ]
                 ),
+                dbc.Row(
+                    dbc.Label(children="Made with ❤️ in India"),
+                    className="justify-content-center"
+                )
             ]
         )
         return layout
