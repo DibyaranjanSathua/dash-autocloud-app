@@ -475,7 +475,6 @@ class AppLayout:
     def save_action_comments(n_clicks, derived_viewport_data):
         """ Save the data to db """
         if n_clicks > 0:
-            db_api = DBApi()
             records = [
                 {
                     "PotentialDealID": record["PotentialDealID"],
@@ -484,7 +483,7 @@ class AppLayout:
                 }
                 for record in derived_viewport_data
             ]
-            db_api.save_actions_comments(records=records)
+            DBApi.get_instance().save_actions_comments(records=records)
             return ["Data saved successfully", True, 5000]
         return ["", False, 5000]
 
