@@ -75,6 +75,11 @@ class AppLayout:
                     width="auto"
                 ),
                 dbc.Col(
+                    dbc.Alert(children="", id="real_time_interval_output", color="success",
+                              dismissable=True, is_open=False),
+                    width="auto"
+                ),
+                dbc.Col(
                     dbc.Button("Save", id="navbar_save_btn", color="warning", className="ml-2",
                                n_clicks=0),
                     width="auto",
@@ -329,8 +334,8 @@ class AppLayout:
         """ Side bar layout for filters """
         return [
             dbc.Card(children=self.get_sidebar_filters(), body=True),
-            dbc.Card(children=self.get_sidebar_filter_save(), body=True),
-            dbc.Card(children=self.get_sidebar_saved_filter_names(), body=True)
+            dbc.Card(children=self.get_sidebar_filter_save(), body=True, className="mt-2"),
+            dbc.Card(children=self.get_sidebar_saved_filter_names(), body=True, className="mt-2")
         ]
 
     def get_potential_deal_table_layout(self):
@@ -383,6 +388,12 @@ class AppLayout:
                 self.get_nav_bar_layout(),
                 dbc.Row(
                     [
+                        # Real time update database
+                        dcc.Interval(
+                            id='real_time_db_update',
+                            interval=15000,  # in milliseconds
+                            n_intervals=0
+                        ),
                         dbc.Col(children=self.get_sidebar_layout(), md=2),
                         dbc.Col(children=self.get_potential_deal_table_layout(), md=10)
 
@@ -731,6 +742,19 @@ class AppLayout:
 
             return ["Filter saved successfully", True, "success", 5000, filter_options, ""]
         return ["", False, "success", 5000, filter_options, ""]
+
+    @staticmethod
+    @app.callback(
+        Output(component_id="real_time_interval_output", component_property="children"),
+        Input(component_id="real_time_db_update", component_property="n_intervals")
+    )
+    def real_time_db_update(n_intervals):
+        """ Update the potential deal cash in every 15 sec """
+        # Output is just a dummy one as each callback needs an output
+        if n_intervals > 0:
+            # This will refresh self._potential_records in db.py which is used in datatable
+            DBApi.get_instance().get_all_potential_records()
+        return ""
 
 
 if __name__ == "__main__":
