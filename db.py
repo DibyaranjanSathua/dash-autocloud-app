@@ -33,14 +33,17 @@ class DBApi:
 
     def get_all_potential_records(self):
         """ Get all potential deals data """
-        query = "SELECT * FROM vw_Deal ORDER BY PotentialDealID DESC"
-        self._potential_records = [dict(row) for row in self._conn.execute(query).fetchall()]
+        with self._engine.connect() as conn:
+            query = "SELECT * FROM vw_Deal ORDER BY PotentialDealID DESC"
+            self._potential_records = [dict(row) for row in conn.execute(query).fetchall()]
+        return self._potential_records
 
     def get_potential_deal_columns(self):
         """ Get potential deal column name """
-        query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'vw_Deal' " \
-                "ORDER BY ORDINAL_POSITION"
-        return [x[0] for x in self._conn.execute(query).fetchall()]
+        with self._engine.connect() as conn:
+            query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE " \
+                    "TABLE_NAME = 'vw_Deal' ORDER BY ORDINAL_POSITION"
+            return [x[0] for x in conn.execute(query).fetchall()]
 
     def get_unique_years(self, potential_records: Optional[dict] = None):
         """ Extract year and no of vehicle in that year """
@@ -59,8 +62,9 @@ class DBApi:
 
     def get_all_make_models(self):
         """ Get all the rows for make_model columns """
-        query = "SELECT * FROM vauto_make_model"
-        make_model_records = [dict(row) for row in self._conn.execute(query).fetchall()]
+        with self._engine.connect() as conn:
+            query = "SELECT * FROM vauto_make_model"
+            make_model_records = [dict(row) for row in conn.execute(query).fetchall()]
         make_model = defaultdict(list)
         for record in make_model_records:
             make_model[record["make"]].append(record["model"])
@@ -90,9 +94,10 @@ class DBApi:
             ) vals ON pd.PotentialDealID = vals.id
             SET Action = new_action, Comment = new_comment
             """
-        transcation = self._conn.begin()
-        self._conn.execute(query)
-        transcation.commit()
+        with self._engine.connect() as conn:
+            transcation = conn.begin()
+            conn.execute(query)
+            transcation.commit()
 
     def save_filter(self, name, year, make, model, min_odometer, max_odometer, min_price, max_price,
                     min_offer_price, max_offer_price):
@@ -103,14 +108,17 @@ class DBApi:
         VALUES ('{name}', '{year}', '{make}', '{model}', '{min_odometer}', '{max_odometer}', 
         '{min_price}', '{max_price}', '{min_offer_price}', '{max_offer_price}')
         """
-        transcation = self._conn.begin()
-        self._conn.execute(query)
-        transcation.commit()
+        with self._engine.connect() as conn:
+            transcation = conn.begin()
+            conn.execute(query)
+            transcation.commit()
 
     def get_all_filters(self):
         """ Get all the rows for filters """
-        query = "SELECT * FROM Filters"
-        self._filters = [dict(row) for row in self._conn.execute(query).fetchall()]
+        with self._engine.connect() as conn:
+            query = "SELECT * FROM Filters"
+            self._filters = [dict(row) for row in conn.execute(query).fetchall()]
+        return self._filters
 
     @property
     def potential_records(self):

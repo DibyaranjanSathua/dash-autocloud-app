@@ -349,7 +349,7 @@ class AppLayout:
             id="potential_deal_table",
             columns=columns,
             data=self._potential_deals,
-            page_size=50,
+            page_size=20,
             style_table={"overflowX": "auto"},
             editable=True,
             css=[
@@ -391,7 +391,7 @@ class AppLayout:
                         # Real time update database
                         dcc.Interval(
                             id='real_time_db_update',
-                            interval=15000,  # in milliseconds
+                            interval=300000,  # in milliseconds
                             n_intervals=0
                         ),
                         dbc.Col(children=self.get_sidebar_layout(), md=2),
